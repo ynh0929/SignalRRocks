@@ -8,9 +8,9 @@ namespace SignalRRocks.Hubs
 {
    public class DrawDotHub: Hub 
    {
-        public async Task UpdateCanvas(int x, int y) 
+        public async Task UpdateCanvas(int x, int y, string userColor) 
         {
-            await Clients.All.SendAsync("updateDot",x, y);
+            await Clients.All.SendAsync("updateDot",x, y, userColor);
         }
 
         public async Task ClearCanvas() 

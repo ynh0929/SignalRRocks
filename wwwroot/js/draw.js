@@ -1,10 +1,11 @@
 "use strict";
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/drawDotHub").build();
+var userColor = "black";
 
 // function to update the canvas from the server
-connection.on("updateDot", function (x, y) {
-    drawDot(x, y, 8);
+connection.on("updateDot", function (x, y, userColor) {
+    drawDot(x, y, 8, userColor);
 });
 
 // function to clear the canvas from the server
@@ -13,7 +14,8 @@ connection.on("clearCanvas", function () {
 });
 
 connection.start().then(function () {
-    // nothing here
+    // set the color to a randomly generated color  
+    userColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
 }).catch(function (err) {
     return console.error(err.toString());
 });
@@ -30,14 +32,10 @@ var canvas, ctx;
 var mouseX, mouseY, mouseDown = 0;
 // Draws a dot at a specific position on the supplied canvas name
 // Parameters are: A canvas context, the x position, the y position, the size of the dot
-function drawDot(x, y, size) {
+function drawDot(x, y, size, userColor) {
     // Let's use black by setting RGB values to 0, and 255 alpha (completely opaque)
-    var r = 0;
-    var g = 0;
-    var b = 0;
-    var a = 255;
     // Select a fill style
-    ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + (a / 255) + ")";
+    ctx.fillStyle = userColor;
     // Draw a filled circle
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2, true);
@@ -66,8 +64,8 @@ function sketchpad_mouseMove(e) {
     getMousePos(e);
     // Draw a dot if the mouse button is currently being pressed
     if (mouseDown == 1) {
-        drawDot(mouseX, mouseY, 8);
-        connection.invoke("UpdateCanvas", mouseX, mouseY).catch(function (err) {
+        drawDot(mouseX, mouseY, 8, userColor);
+        connection.invoke("UpdateCanvas", mouseX, mouseY, userColor).catch(function (err) {
             return console.error(err.toString());
         });
     }
